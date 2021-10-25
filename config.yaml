@@ -1,5 +1,11 @@
+# 运行端口
+server_port: 8081
+
+
+# 项目列表
 # 项目名 :  项目路径
-
-name1: /path1
-
-name2: /path2
+project:
+  name1:
+    path: /path1
+  name2:
+    path: /path2
