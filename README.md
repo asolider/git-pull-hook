@@ -38,3 +38,10 @@
     git web hook ，配置链接为 `ip:8081/git_pull?project=name1`
 
     此处的name1，即为配置文件的中的名字
+
+
+## TODO
+
+1. 服务端口可配置
+
+2. git pull 后面 执行自定义的的命令（可配置）
