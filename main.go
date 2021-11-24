@@ -11,7 +11,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-var projects map[string]string
+var conf ServerConf
+
+var projectMap map[string]string = make(map[string]string)
+
+type Project struct {
+	ProjectName string `mapstructure:"name"`
+	ProjectPath string `mapstructure:"path"`
+}
+
+type ServerConf struct {
+	ServerPort int `mapstructure:"server_port"`
+	Projects   []Project
+}
 
 func init() {
 	/*
@@ -41,15 +53,15 @@ func initConfig() {
 		log.Fatalf("read config e: %s", err)
 	}
 
-	config.Unmarshal(&projects)
+	config.Unmarshal(&conf)
 
 	config.OnConfigChange(func(e fsnotify.Event) {
-		config.Unmarshal(&projects)
-		log.Printf("reload config: %s", projects)
+		config.Unmarshal(&conf)
+		log.Printf("reload config: %v", conf)
 	})
 	config.WatchConfig()
 
-	log.Printf(" config : %s \n", projects)
+	log.Printf(" config : %v \n", conf)
 }
 
 func initLog() {
@@ -60,7 +72,20 @@ func initLog() {
 	log.SetOutput(logFile)
 	log.SetPrefix("[run-git-pull] ")
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
-	return
+}
+
+func getProjectPath(projectName string) (projectDir string, exist bool) {
+	if projectName == "" || len(conf.Projects) == 0 {
+		return "", false
+	}
+
+	for _, p := range conf.Projects {
+		if p.ProjectName == projectName {
+			return p.ProjectPath, true
+		}
+	}
+
+	return "", false
 }
 
 func main() {
@@ -68,7 +93,7 @@ func main() {
 		project := r.URL.Query().Get("project")
 		log.Printf("run git pull: %s \n", project)
 
-		projectDir, exist := projects[project]
+		projectDir, exist := getProjectPath(project)
 
 		if project == "" || !exist {
 			log.Printf("project not config: %s \n", project)
@@ -83,12 +108,12 @@ func main() {
 
 		if err != nil {
 			log.Printf("git pull err: %s \n", err)
-			log.Printf("\n %s \n", out)
+			log.Printf("%s \n", out)
 		} else {
 			log.Printf("\n %s \n", out)
 		}
 		w.Write(out)
 	})
-
-	http.ListenAndServe(":8081", nil)
+	fmt.Printf("listen on 0.0.0.0:%d \n", conf.ServerPort)
+	http.ListenAndServe(fmt.Sprintf(":%d", conf.ServerPort), nil)
 }

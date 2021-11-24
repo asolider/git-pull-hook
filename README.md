@@ -20,9 +20,11 @@
     配置规则如下：
 
 
-    # 项目名 :  项目路径
-    # 每个项目，配置一行
-    如 name1: /path1
+    projects:
+        - name: h1
+          path: /home/h1
+        - name: h2
+          path: /home/h2
 
     注：编辑配置文件实时生效，无需重启服务
 ```
@@ -33,15 +35,15 @@
 
 ## 使用
 
-    运行http端口为 `8081`
+    运行http端口默认为 `8081`
 
-    git web hook ，配置链接为 `ip:8081/git_pull?project=name1`
+    git web hook ，配置链接为 `ip:8081/git_pull?project=h1`
 
-    此处的name1，即为配置文件的中的名字
+    此处的h1，即为配置文件的中的名字
 
 
 ## TODO
 
-1. 服务端口可配置
+1. 服务端口可配置（done）
 
 2. git pull 后面 执行自定义的的命令（可配置）
